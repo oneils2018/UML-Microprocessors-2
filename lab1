@@ -1,4 +1,4 @@
-/*Stephen O'Neil
+/*Stephen O'Neil and Ryan Yatim
   Micro 2
   Lab 1*/
 
@@ -39,7 +39,8 @@
 
   
   }
-
+   
+   
 
 ISR(TIMER1_COMPA_vect){   //in current settings, timer1 will interrupt once per sec
   
@@ -49,9 +50,12 @@ ISR(TIMER1_COMPA_vect){   //in current settings, timer1 will interrupt once per 
   if (state == 0) {   //resets counter to 0 for flashing red
     counter = 0;
   }
-  
+
+
+
  if ((counter >= 17 && counter < 20) || (state == 3 && counter <3))   //will buzz for 3 sec at end of state, will deactivate when state is changed
-      digitalWrite(buzz, HIGH);
+      tone(buzz, 1000);
+      
 
   if (state == 1 || state == 2) {
     counter++;
@@ -60,25 +64,27 @@ ISR(TIMER1_COMPA_vect){   //in current settings, timer1 will interrupt once per 
     if (counter == 20) {    //once counter == 20, increment state
       counter = 0;
       state++;
-      digitalWrite(buzz, LOW);  //deactivates buzzer
+      noTone(buzz);         //deactivates buzzer
+       
     }
   }
 
   else if (state == 3) {    //for yellow, will hold for 3 seconds
+    counter++;
     if (counter == 3) {     //resets back to state 1
       counter = 0;
       state = 1;
-      digitalWrite(buzz, LOW);
+      noTone(buzz);
+     
     }
   }
 
-  else                      //guard case resets back to state 1
-    state = 1;
+    
 
-  
   
    
     }
+
 
 void loop() {
 
@@ -88,11 +94,16 @@ void loop() {
     state = 1;
     pinMode(start, OUTPUT);   //may prevent debounce of start button 
   }
+
+
   
  switch (state){      //controls the LEDs
     case 0:
-    digitalWrite(red, !digitalRead(red));   //will invert red pin
-    delay(1000);                            // 1 sec delay between inv
+    
+    digitalWrite(red, HIGH);   //will invert red pin
+    delay(1000);   
+    digitalWrite(red, LOW);   // 1 sec delay between inv
+    delay(1000);
     break;
     
     case 1:
