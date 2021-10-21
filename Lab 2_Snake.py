@@ -2,6 +2,7 @@
 # By @TokyoEdTech
 # modified by Yan Luo
 # modified by Ryan Yatim
+#joystick + beep
 
 import turtle
 import time
@@ -102,11 +103,8 @@ wn.onkey(go_right, "d")
 while True:
     wn.update()
 
-    # TODO: notes by Prof. Luo
-    # you need to add your code to read control information from serial port
-    # then use that information to set head.direction
     b = ser.readline()         # read a byte string
-    b = b.decode()             # decode byte string into Unicode  
+    b = b.decode()
     if b == 'u':
         go_up()
     elif b == 'd':
@@ -143,10 +141,8 @@ while True:
     # Check for a collision with the food
     if head.distance(food) < 20:
 
-        # TODO: notes by Prof. Luo
-        # you need to send a flag to Arduino indicating an apple is eaten
-        # so that the Arduino will beep the buzzer
-        # Hint: refer to the example at Serial-RW/pyserial-test.py
+        #beep buzzer
+        ser.write(b'b')
 
         # Move the food to a random spot
         x = random.randint(-290, 290)
@@ -214,4 +210,3 @@ while True:
     time.sleep(delay)
 
 wn.mainloop()
-
