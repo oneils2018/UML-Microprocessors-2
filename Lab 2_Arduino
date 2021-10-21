@@ -1,0 +1,24 @@
+//Ryan Yatim
+// Arduino pin numbers
+const int X_pin = 0; // analog pin connected to X output
+const int Y_pin = 1; // analog pin connected to Y output
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  if (analogRead(X_pin) < 300) {
+    Serial.print("u");
+  }
+    if (analogRead(X_pin) > 700) {
+    Serial.print("d");
+  }
+    if (analogRead(Y_pin) < 300) {
+    Serial.print("r");
+  }
+    if (analogRead(Y_pin) > 700) {
+    Serial.print("l");
+  }
+  delay(100);
+}
