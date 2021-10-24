@@ -1,0 +1,65 @@
+/*  Stephen O'Neil
+ *   Micro 2 Lab #2
+ *   Gyroscope code for snake game
+ *   10/24/21
+ */
+
+ #include <basicMPU6050.h>
+ 
+ 
+ 
+ basicMPU6050<> imu;    //loads gyroscope libary "Basic MPU6050"
+
+  const int buzz = 11; //buzzer pin
+  int beep = 0;
+
+void setup() {
+  //sensor setup
+  imu.setup();    
+  imu.setBias();
+
+  //serial setup
+  Serial.begin(9600);
+
+  pinMode(buzz,OUTPUT);
+  
+}
+
+void loop() {
+
+  imu.updateBias();   //updates gyro calibration
+
+  if (Serial.available() > 0) {
+    //read incoming byte
+    beep = Serial.read();
+    Serial.println(beep);
+  }
+
+  if (beep == 'b') {        //will beep buzzer when apple is eaten in snake game
+    tone(buzz,6000,1000);   //6kHz sine wave for 1 second output to pin 11
+    
+  }
+
+
+
+  if (imu.gx() < -4) {      //when gyro is moved in a downwards motion quickly
+                            // value (-4) can be changed to make gyro more sensitive to movement
+    Serial.print("d");      //output to snake game
+    delay(250);             //debounce
+  }
+
+  else if (imu.gx() > 4) {    //when gyro is moved upwards quickly
+    Serial.print("u");
+    delay(250);
+  }
+
+  if (imu.gz() < -4) {    //when gyro is moved to horizontally to the right
+    Serial.print("r");
+    delay(250);
+  }
+
+  else if (imu.gz() > 4) {    //when gyro is moved horizontally to the left
+    Serial.print("l");
+    delay(250);
+  }
+}
