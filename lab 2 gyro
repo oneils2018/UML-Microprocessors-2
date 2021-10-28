@@ -12,13 +12,16 @@
 
   const int buzz = 11; //buzzer pin
   int beep = 0;
+  int buzzOn = 0;
 
+
+  
 void setup() {
   //sensor setup
   imu.setup();    
   imu.setBias();
 
-  //serial setup
+  //serial setup-
   Serial.begin(9600);
 
   pinMode(buzz,OUTPUT);
@@ -35,31 +38,41 @@ void loop() {
     Serial.println(beep);
   }
 
+  if (buzzOn == 1) {
+    noTone(buzz);
+    buzzOn = 0;
+  }
+  
   if (beep == 'b') {        //will beep buzzer when apple is eaten in snake game
-    tone(buzz,6000,1000);   //6kHz sine wave for 1 second output to pin 11
+    tone(buzz,1000);   //6kHz sine wave for 1 second output to pin 11
+    //delay(1000);
+    buzzOn = 1;
     
   }
 
 
 
-  if (imu.gx() < -4) {      //when gyro is moved in a downwards motion quickly
+  if (imu.gx() < -3) {      //when gyro is moved in a downwards motion quickly
                             // value (-4) can be changed to make gyro more sensitive to movement
     Serial.print("d");      //output to snake game
-    delay(250);             //debounce
+   // delay(250);             //debounce
   }
 
-  else if (imu.gx() > 4) {    //when gyro is moved upwards quickly
+  else if (imu.gx() > 3) {    //when gyro is moved upwards quickly
     Serial.print("u");
-    delay(250);
+    //delay(250);
   }
 
-  if (imu.gz() < -4) {    //when gyro is moved to horizontally to the right
+  if (imu.gz() < -3) {    //when gyro is moved to horizontally to the right
     Serial.print("r");
-    delay(250);
+    //delay(250);
   }
 
-  else if (imu.gz() > 4) {    //when gyro is moved horizontally to the left
+  else if (imu.gz() > 3) {    //when gyro is moved horizontally to the left
     Serial.print("l");
-    delay(250);
+    //delay(250);
   }
+
+  beep = 0;
+  delay(100);
 }
