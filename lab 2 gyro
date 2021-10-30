@@ -1,7 +1,7 @@
-/*  Stephen O'Neil
+/*  Stephen O'Neil, Ryan Yatim, Joseph Ayoka
  *   Micro 2 Lab #2
- *   Gyroscope code for snake game
- *   10/24/21
+ *   Joystick/Gyroscope code for snake game + beep
+ *   10/31/21
  */
 
  #include <basicMPU6050.h>
@@ -9,10 +9,11 @@
  
  
  basicMPU6050<> imu;    //loads gyroscope libary "Basic MPU6050"
-
-  const int buzz = 11; //buzzer pin
-  int beep = 0;
-  int buzzOn = 0;
+ const int X_pin = 0; // analog pin connected to X output
+ const int Y_pin = 1; // analog pin connected to Y output
+ const int buzz = 11; //buzzer pin
+ int beep = 0;
+ int buzzOn = 0;
 
 
   
@@ -48,6 +49,19 @@ void loop() {
     //delay(1000);
     buzzOn = 1;
     
+  }
+  
+  if (analogRead(X_pin) < 300) {
+    Serial.print("u");
+  }
+  if (analogRead(X_pin) > 700) {
+    Serial.print("d");
+  }
+  if (analogRead(Y_pin) < 300) {
+    Serial.print("r");
+  }
+  if (analogRead(Y_pin) > 700) {
+    Serial.print("l");
   }
 
 
