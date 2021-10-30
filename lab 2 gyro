@@ -51,16 +51,16 @@ void loop() {
     
   }
   
-  if (analogRead(X_pin) < 300) {
+  if (analogRead(X_pin) < 300) { //read from x pin to go up
     Serial.print("u");
   }
-  if (analogRead(X_pin) > 700) {
+  if (analogRead(X_pin) > 700) { //read from x pin to go down
     Serial.print("d");
   }
-  if (analogRead(Y_pin) < 300) {
+  if (analogRead(Y_pin) < 300) { //read from y pin to go right
     Serial.print("r");
   }
-  if (analogRead(Y_pin) > 700) {
+  if (analogRead(Y_pin) > 700) { //read from y pin to go left
     Serial.print("l");
   }
 
