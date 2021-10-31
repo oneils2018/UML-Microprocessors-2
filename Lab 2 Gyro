@@ -1,0 +1,92 @@
+/*  Stephen O'Neil, Ryan Yatim, Joseph Ayoka
+ *   Micro 2 Lab #2
+ *   Joystick/Gyroscope code for snake game + beep
+ *   10/31/21
+ */
+
+ #include <basicMPU6050.h>
+ 
+ 
+ 
+ basicMPU6050<> imu;    //loads gyroscope libary "Basic MPU6050"
+ const int X_pin = 0; // analog pin connected to X output
+ const int Y_pin = 1; // analog pin connected to Y output
+ const int buzz = 11; //buzzer pin
+ int beep = 0;
+ int buzzOn = 0;
+
+
+  
+void setup() {
+  //sensor setup
+  imu.setup();    
+  imu.setBias();
+
+  //serial setup-
+  Serial.begin(9600);
+
+  pinMode(buzz,OUTPUT);
+  
+}
+
+void loop() {
+
+  imu.updateBias();   //updates gyro calibration
+
+  if (Serial.available() > 0) {
+    //read incoming byte
+    beep = Serial.read();
+    Serial.println(beep);
+  }
+
+  if (buzzOn == 1) {
+    noTone(buzz);
+    buzzOn = 0;
+  }
+  
+  if (beep == 'b') {        //will beep buzzer when apple is eaten in snake game
+    tone(buzz,1000);   //6kHz sine wave for 1 second output to pin 11
+    //delay(1000);
+    buzzOn = 1;
+    
+  }
+  
+  if (analogRead(X_pin) < 300) { //read from x pin to go up
+    Serial.print("u");
+  }
+  if (analogRead(X_pin) > 700) { //read from x pin to go down
+    Serial.print("d");
+  }
+  if (analogRead(Y_pin) < 300) { //read from y pin to go right
+    Serial.print("r");
+  }
+  if (analogRead(Y_pin) > 700) { //read from y pin to go left
+    Serial.print("l");
+  }
+
+
+
+  if (imu.gx() < -3) {      //when gyro is moved in a downwards motion quickly
+                            // value (-4) can be changed to make gyro more sensitive to movement
+    Serial.print("d");      //output to snake game
+   // delay(250);             //debounce
+  }
+
+  else if (imu.gx() > 3) {    //when gyro is moved upwards quickly
+    Serial.print("u");
+    //delay(250);
+  }
+
+  if (imu.gz() < -3) {    //when gyro is moved to horizontally to the right
+    Serial.print("r");
+    //delay(250);
+  }
+
+  else if (imu.gz() > 3) {    //when gyro is moved horizontally to the left
+    Serial.print("l");
+    //delay(250);
+  }
+
+  beep = 0;
+  delay(100);
+}
