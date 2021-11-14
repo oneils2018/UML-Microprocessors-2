@@ -1,0 +1,47 @@
+/*Stephen O'Neil
+ * Micro 2 Lab #3
+ * 1307 RTC and LCD code
+ */
+
+#include "RTClib.h"
+#include <LiquidCrystal.h>
+
+RTC_DS1307 rtc;     //RTC library (general purpose)
+
+const int rs = 12, enable = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, enable, d4, d5, d6, d7);    //initializes lcd with pin connections
+
+
+void setup() {
+  
+  Serial.begin(9600);
+  delay(3000);
+  rtc.begin();            //begins RTC
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));       //sets timer to compilation time and date
+  lcd.begin(16,2);                                      //starts lcd on first line
+}
+
+void loop() {
+
+  DateTime current = rtc.now();         //variable used to retrieve data
+
+  lcd.print(current.hour(), DEC);       //print hour to lcd
+  lcd.print(':');
+  lcd.print(current.minute(), DEC);     //print minute to lcd
+  lcd.print(':');
+
+  if (current.second() < 10){             //gives leading 0 for first 10 seconds
+    lcd.print('0');
+  }
+  lcd.print(current.second(), DEC);     //print second to lcd
+  
+  Serial.print(current.hour(), DEC);     //get hour
+  Serial.print(':');      
+  Serial.print(current.minute(), DEC);    //get minute
+  Serial.print(':');
+  Serial.print(current.second(), DEC);    //get second
+  Serial.println();
+  delay(1000);
+  lcd.clear();
+  
+}
