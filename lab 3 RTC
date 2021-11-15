@@ -1,47 +1,114 @@
 /*Stephen O'Neil
- * Micro 2 Lab #3
- * 1307 RTC and LCD code
- */
-
-#include "RTClib.h"
+*Ryan Yatim
+* Micro 2 Lab #3
+* Complete Code
+*/
+#include <Wire.h>
 #include <LiquidCrystal.h>
+#include <DS3231.h>
+#define ENABLE 5
+#define CW 3
+#define CCW 4
+DS3231 clock;
+RTCDateTime dt;
 
-RTC_DS1307 rtc;     //RTC library (general purpose)
+// initialize the library with the numbers of the interface pins
+LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
 
-const int rs = 12, enable = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
-LiquidCrystal lcd(rs, enable, d4, d5, d6, d7);    //initializes lcd with pin connections
+String spd = "S: 0"; //string to hold speed info
+String dir = "CW";   //string to hold direction info
+int flipButton = 2;  //button pin to flip from CW to CCW
+int flip = -1;       //set to -1 to wait for clock to be at :00 seconds
 
-
-void setup() {
+void setup()
+{
+  //set up pins
+  pinMode(flipButton,INPUT_PULLUP);
+  pinMode(ENABLE,OUTPUT);
+  pinMode(CW,OUTPUT);
+  pinMode(CCW,OUTPUT);
+  lcd.begin(16, 2);
   
-  Serial.begin(9600);
-  delay(3000);
-  rtc.begin();            //begins RTC
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));       //sets timer to compilation time and date
-  lcd.begin(16,2);                                      //starts lcd on first line
+  // Initialize DS3231
+  clock.begin();
+  clock.setDateTime(__DATE__, __TIME__);  
+  spd = "S: 0";
+  dir = "WAIT"; //until the minute is at :00
+  
 }
 
-void loop() {
-
-  DateTime current = rtc.now();         //variable used to retrieve data
-
-  lcd.print(current.hour(), DEC);       //print hour to lcd
-  lcd.print(':');
-  lcd.print(current.minute(), DEC);     //print minute to lcd
-  lcd.print(':');
-
-  if (current.second() < 10){             //gives leading 0 for first 10 seconds
-    lcd.print('0');
+void loop()
+{
+  dt = clock.getDateTime();
+  lcd.setCursor(0, 0); //first line
+  lcd.print(dt.hour);   lcd.print(":");
+  lcd.print(dt.minute); lcd.print(":");
+  if (dt.second < 10){
+    lcd.print("0");
   }
-  lcd.print(current.second(), DEC);     //print second to lcd
+  lcd.print(dt.second);
+
+  if (flip == -1 && dt.second == 0) { //starts at new minute 
+    Serial.println("Starting Now"); 
+    flip = 0;
+    digitalWrite(CW,HIGH); //clockwise
+    digitalWrite(CCW,LOW);
+    dir = " D: CW";
+  }
+    
+  if (flip != -1){
+    if (dt.second < 15){
+      analogWrite(ENABLE,0); //motor is off first 15 seconds
+      spd = "S: 0";
+    }
+    else if (dt.second > 14 && dt.second < 30){
+      analogWrite(ENABLE,128); //motor is at half power from 15 to 29 seconds
+      spd = "S: 1/2";
+    }
+    else if (dt.second > 29 && dt.second < 45){
+      analogWrite(ENABLE,192); //motor is at 3/4 power from 30 to 44 seconds
+      spd = "S: 3/4";
+    }
+    else if (dt.second > 44){
+      analogWrite(ENABLE,255); //motor is at full power from 45 to 59 seconds
+      spd = "S: Full";
+    }
+  }
   
-  Serial.print(current.hour(), DEC);     //get hour
-  Serial.print(':');      
-  Serial.print(current.minute(), DEC);    //get minute
-  Serial.print(':');
-  Serial.print(current.second(), DEC);    //get second
-  Serial.println();
-  delay(1000);
-  lcd.clear();
+  if (digitalRead(flipButton) == 0 && flip == 1) { //toggle between CW and CCW and print info
+    flip = 0;
+    digitalWrite(CW,HIGH); //clockwise
+    digitalWrite(CCW,LOW);
+    Serial.println("Flip is: ");
+    Serial.println(flip);
+    dir = " D: CW";
+    lcd.setCursor(0, 1); //second line on LCD
+    lcd.print(spd);
+    lcd.print(dir);
+    delay (200);
+    del = 500;
+  }
   
+  else if (digitalRead(flipButton) == 0 && flip == 0) {
+    flip = 1; 
+    digitalWrite(CW,LOW); //counter clockwise
+    digitalWrite(CCW,HIGH);
+    Serial.println("Flip is: ");
+    Serial.println(flip);
+    dir = " D: CCW";
+    lcd.setCursor(0, 1);
+    lcd.print(spd);
+    lcd.print(dir);
+    delay (200);
+    del = 500;
+  }
+
+  else { //if there is no toggling happening, print the relevant info (nothing changes)
+    lcd.setCursor(0, 1); 
+    lcd.print(spd);
+    lcd.print(dir);
+  }
+
+  delay(100);   //small delay so that LCD is not flashing like crazy
+  lcd.clear();  //clear any garbage
 }
