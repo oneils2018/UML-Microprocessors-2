@@ -86,7 +86,6 @@ void loop()
     lcd.print(spd);
     lcd.print(dir);
     delay (200);
-    del = 500;
   }
   
   else if (digitalRead(flipButton) == 0 && flip == 0) {
@@ -100,7 +99,6 @@ void loop()
     lcd.print(spd);
     lcd.print(dir);
     delay (200);
-    del = 500;
   }
 
   else { //if there is no toggling happening, print the relevant info (nothing changes)
